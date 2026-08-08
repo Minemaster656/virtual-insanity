@@ -1,8 +1,11 @@
-from typing import Callable, Dict
-from ollama import Client, ChatResponse
+from typing import List, Union
+from classes import GameMessage, get_suffix_after_last_author
+from ollama import Client
 from rich import print
-from rich.markdown import Markdown
 import asyncio
+
+from character import Character, Player
+from rich.markdown import Markdown
 
 client = Client()
 MODEL = "gemma4:e4b-it-qat"
@@ -14,68 +17,40 @@ def echo(value: str) -> str:
     return value
 
 
+def send(value: str) -> str:
+    """Sends a message to the chat and breaks the thinking loop until the your next message"""
+    return value
+
+
 async def main():
-    history = []
-    available_functions: Dict[str, Callable] = {
-        "echo": echo,
-    }
+    history: List[GameMessage] = []
+    queue: List[Union[Character, Player]] = [
+        Player("Player", "Player", "Player"),
+        Character(
+            "Character 1",
+            "Character",
+            "You are a roleplay character. Do not respond as other characters. Respond in russian. Use send to send message to the chat",
+            {"send": send},
+        ),
+        Character(
+            "Character 2",
+            "Character",
+            "You are a roleplay character. Do not respond as other characters. Respond in russian. Use send to send message to the chat",
+            {"send": send},
+        ),
+    ]
 
     while True:
-        inp = input("> ")
-        print("Model is thinking...")
-        history.append({"role": "user", "content": inp})
-
-        resp: ChatResponse = client.chat(
-            MODEL, messages=history, tools=list(available_functions.values())
-        )
-        print(resp.model_dump())
-        print(
-            "[bright_black]" + str(resp.message.thinking),
-            Markdown(str(resp.message.content)),
-            sep="\n" * 3,
-        )
-        prompt_eval_duration = (resp.prompt_eval_duration or 0) / 1e9
-        eval_duration = (resp.eval_duration or 0) / 1e9
-
-        print(
-            f"Prompt: {resp.prompt_eval_count} tokens in {prompt_eval_duration} sec. ({int(resp.prompt_eval_count or 0) / prompt_eval_duration} TPS)\n"
-            f"Response: {resp.eval_count} tokens in {eval_duration} sec. ({int(resp.eval_count or 0) / eval_duration} TPS)\n"
-        )
-        history.append(resp.message.model_dump())
-        if resp.message.tool_calls:
-            for tool_call in resp.message.tool_calls:
-                print(
-                    tool_call.function.name,
-                    " ",
-                    tool_call.function.arguments,
-                    ": ",
-                    end="",
+        for character in queue:
+            if isinstance(character, Player):
+                inp = input(f"You as {character.name}: ")
+                history.append(GameMessage(character.name, inp))
+            else:
+                resp = character.act(
+                    get_suffix_after_last_author(history, character.name)
                 )
-                if tool_call.function.name in available_functions.keys():
-                    print("[green] exists")
-                    try:
-                        result = available_functions[tool_call.function.name](
-                            **tool_call.function.arguments
-                        )
-                    except Exception as e:
-                        print("[red]", e)
-                        result = str(e)
-                    history.append(
-                        {
-                            "role": "tool",
-                            "tool_name": tool_call.function.name,
-                            "content": str(result),
-                        }
-                    )
-                else:
-                    print("[red] does not exists")
-                    history.append(
-                        {
-                            "role": "tool",
-                            "tool_name": tool_call.function.name,
-                            "content": "Unknown function",
-                        }
-                    )
+                print(f"[magenta]{character.name}:\n", Markdown(resp))
+                history.append(GameMessage(character.name, resp))
 
 
 if __name__ == "__main__":
