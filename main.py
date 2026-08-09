@@ -1,11 +1,11 @@
-from typing import List, Union
-from core.classes import GameMessage, get_suffix_after_last_author
+from typing import List
+from core.classes import GameMessage
+from core.location import Location
 from ollama import Client
 from rich import print
 import asyncio
 
-from core.character import Character, Player
-from rich.markdown import Markdown
+from core.character import Character, CharacterBase, Player
 
 client = Client()
 MODEL = "gemma4:e4b-it-qat"
@@ -41,7 +41,7 @@ async def main():
     ---
 
     """
-    queue: List[Union[Character, Player]] = [
+    queue: List[CharacterBase] = [
         Player("Player", "Player", "Player"),
         Character(
             "Tom",
@@ -56,25 +56,10 @@ async def main():
             {"send": send},
         ),
     ]
+    location = Location("Test room", "Test room", "Test room", queue)
 
     while True:
-        for character in queue:
-            if isinstance(character, Player):
-                inp = input(f"You as {character.name}: ")
-                history.append(GameMessage(character.name, inp))
-            else:
-                resp = character.act(
-                    get_suffix_after_last_author(history, character.name)
-                )
-                if resp != "":
-                    print(f"[magenta]{character.name}:\n", Markdown(resp))
-                    history.append(GameMessage(character.name, resp))
-                else:
-                    print(
-                        f"[magenta]{character.name}:\n",
-                        "[bright_black][italic]Skipped his turn...",
-                    )
-                    history.append(GameMessage(character.name, "Skipped his turn..."))
+        location.do_turns()
 
 
 if __name__ == "__main__":

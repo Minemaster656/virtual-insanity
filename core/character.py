@@ -12,6 +12,7 @@ class CharacterBase:
         self.name = name
         self.description = description
         self.prompt = prompt
+        self.inventory = []
 
     def act(self, new_messages: List[GameMessage]) -> str:
         raise NotImplementedError
@@ -27,14 +28,16 @@ class Character(CharacterBase):
 
     def act(self, new_messages: List[GameMessage]) -> str:
         def compress_messages(messages: List[Dict[str, str]]):
+            # print(messages)
             if len(messages) < 12:
                 return messages
             else:
-                return [messages[0], messages[-10:]]
+                return [messages[0], *messages[-10:]]
 
+        new_message = "# NEW MESSAGES SINCE LAST TURN:\n"
         for message in new_messages:
-            new_message = f"# GAME MESSAGE BY {message.author}:\n{message.content}"
-            self.messages.append({"role": "user", "content": new_message})
+            new_message += f"\n# GAME MESSAGE BY {message.author}:\n{message.content}"
+        self.messages.append({"role": "user", "content": new_message})
         self.messages.append(
             {
                 "role": "user",
