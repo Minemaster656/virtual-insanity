@@ -1,6 +1,6 @@
 from typing import Callable, Dict, List
 
-from classes import GameMessage
+from core.classes import GameMessage
 from config import MODEL, client
 import config
 from ollama import ChatResponse

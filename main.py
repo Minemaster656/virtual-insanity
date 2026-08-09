@@ -1,10 +1,10 @@
 from typing import List, Union
-from classes import GameMessage, get_suffix_after_last_author
+from core.classes import GameMessage, get_suffix_after_last_author
 from ollama import Client
 from rich import print
 import asyncio
 
-from character import Character, Player
+from core.character import Character, Player
 from rich.markdown import Markdown
 
 client = Client()
