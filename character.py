@@ -22,7 +22,7 @@ class Character(CharacterBase):
         self, name: str, description: str, prompt: str, tools: Dict[str, Callable]
     ):
         super().__init__(name, description, prompt)
-        self.messages: List[Dict[str, str]] = []
+        self.messages: List[Dict[str, str]] = [{"role": "system", "content": prompt}]
         self.tools = tools
 
     def act(self, new_messages: List[GameMessage]) -> str:
@@ -35,6 +35,13 @@ class Character(CharacterBase):
         for message in new_messages:
             new_message = f"# GAME MESSAGE BY {message.author}:\n{message.content}"
             self.messages.append({"role": "user", "content": new_message})
+        self.messages.append(
+            {
+                "role": "user",
+                "content": "# Environment:\nCharacters on location: Player, Tom, Hank\n\n"
+                "# Info: HP: 100/100, Mana: 100/100, Inventory: []",
+            }
+        )
         i = 0
         while True:
             i += 1
@@ -102,10 +109,15 @@ class Character(CharacterBase):
                     return is_return
             else:
                 print("[red] No tool call")
+                extras: List[str] = []
+                if "<send>" in self.messages[-1]["content"]:
+                    extras.append(
+                        "You are trying to use xml text instead of the send tool"
+                    )
                 self.messages.append(
                     {
                         "role": "user",
-                        "content": "# SYSTEM:\nYou forgot about the tool call. If you want to send your answer - use the send tool",
+                        "content": f"# SYSTEM:\nYou forgot about the tool call. If you want to send your answer - use the send tool\n{'\n -'.join(extras)}",
                     }
                 )
 

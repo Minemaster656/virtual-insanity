@@ -18,24 +18,41 @@ def echo(value: str) -> str:
 
 
 def send(value: str) -> str:
-    """Sends a message to the chat and breaks the thinking loop until the your next message"""
+    """Sends a message to the chat and ends your turn.
+    Args:
+        value (str): The message to send. Use "pass" or empty to skip your turn.
+
+    Returns:
+        str: Echoes the input and sends it to the chat.
+    """
+    if value == "pass":
+        return ""
     return value
 
 
 async def main():
     history: List[GameMessage] = []
+    GENERIC_PROMPT = """
+    You are a roleplay character, not an AI assistant.
+    Make sure that you respond as YOU, not as the other character.
+    Respond in russian. 
+    Use the ``send`` tool to send message to the chat and finish your turn or use ``pass`` as message to skip your turn.
+    You are in the group roleplay chat with others. Everybody makes turns by queue.
+    ---
+
+    """
     queue: List[Union[Character, Player]] = [
         Player("Player", "Player", "Player"),
         Character(
-            "Character 1",
+            "Tom",
             "Character",
-            "You are a roleplay character. Do not respond as other characters. Respond in russian. Use send to send message to the chat",
+            GENERIC_PROMPT + "Your are Tom.",
             {"send": send},
         ),
         Character(
-            "Character 2",
+            "Hank",
             "Character",
-            "You are a roleplay character. Do not respond as other characters. Respond in russian. Use send to send message to the chat",
+            GENERIC_PROMPT + "Your are Hank.",
             {"send": send},
         ),
     ]
@@ -49,8 +66,15 @@ async def main():
                 resp = character.act(
                     get_suffix_after_last_author(history, character.name)
                 )
-                print(f"[magenta]{character.name}:\n", Markdown(resp))
-                history.append(GameMessage(character.name, resp))
+                if resp != "":
+                    print(f"[magenta]{character.name}:\n", Markdown(resp))
+                    history.append(GameMessage(character.name, resp))
+                else:
+                    print(
+                        f"[magenta]{character.name}:\n",
+                        "[bright_black][italic]Skipped his turn...",
+                    )
+                    history.append(GameMessage(character.name, "Skipped his turn..."))
 
 
 if __name__ == "__main__":
