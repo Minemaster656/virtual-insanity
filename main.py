@@ -3,6 +3,8 @@ from core.classes import GameMessage
 from core.location import Location
 from ollama import Client
 from rich import print
+from core.world import World
+import networkx as nx
 import asyncio
 
 from core.character import Character, CharacterBase, Player
@@ -56,10 +58,15 @@ async def main():
             {"send": send},
         ),
     ]
-    location = Location("Test room", "Test room", "Test room", queue)
+    location1 = Location("Test room", "Test room", "Test room", queue)
+    location2 = Location("Empty room", "Empty room", "Empty room", [])
+    locations = nx.Graph()
+    locations.add_nodes_from([location1, location2])
+    locations.add_edges_from([(location1, location2)])
+    world = World(locations)
 
     while True:
-        location.do_turns()
+        world.tick()
 
 
 if __name__ == "__main__":

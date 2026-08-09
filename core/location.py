@@ -1,8 +1,10 @@
-from typing import List
+from typing import List, Optional
 from core.character import CharacterBase, Player
 from core.classes import GameMessage, get_suffix_after_last_author
 from rich.markdown import Markdown
 from rich import print
+
+from core.world import World
 
 
 class Location:
@@ -18,6 +20,9 @@ class Location:
         self.prompt = prompt
         self.characters: List[CharacterBase] = characters
         self.history: List[GameMessage] = []
+        self.world: Optional[World] = None
+        for character in self.characters:
+            character.location = self
 
     def do_turns(self):
         for character in self.characters:

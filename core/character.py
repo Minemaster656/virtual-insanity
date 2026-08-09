@@ -1,10 +1,11 @@
-from typing import Callable, Dict, List
+from typing import Callable, Dict, List, Optional
 
 from core.classes import GameMessage
 from config import MODEL, client
 import config
 from ollama import ChatResponse
 from rich import print
+from core.location import Location
 
 
 class CharacterBase:
@@ -13,6 +14,7 @@ class CharacterBase:
         self.description = description
         self.prompt = prompt
         self.inventory = []
+        self.location: Optional[Location] = None
 
     def act(self, new_messages: List[GameMessage]) -> str:
         raise NotImplementedError
