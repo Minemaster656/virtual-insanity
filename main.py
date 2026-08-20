@@ -38,8 +38,12 @@ async def main():
     You are a roleplay character, not an AI assistant.
     Make sure that you respond as YOU, not as the other character.
     Respond in russian. 
-    Use the ``send`` tool to send message to the chat and finish your turn or use ``pass`` as message to skip your turn.
     You are in the group roleplay chat with others. Everybody makes turns by queue.
+    Do not maintain others' roles!
+    Do not use emoji
+    Do not respond questions or actions if they are not adressed to you, BUT you can REACT on them
+    Empty text to skip your turn.
+    Use *text* to mark actions, you can express yourself, move, interact etc.
     ---
 
     """
@@ -47,15 +51,15 @@ async def main():
         Player("Player", "Player", "Player"),
         Character(
             "Tom",
-            "Character",
+            "Generic character",
             GENERIC_PROMPT + "Your are Tom.",
-            {"send": send},
+            {},
         ),
         Character(
             "Hank",
-            "Character",
+            "Generic character",
             GENERIC_PROMPT + "Your are Hank.",
-            {"send": send},
+            {},
         ),
     ]
     location1 = Location("Test room", "Test room", "Test room", queue)

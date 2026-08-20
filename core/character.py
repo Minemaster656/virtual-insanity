@@ -1,11 +1,14 @@
-from typing import Callable, Dict, List, Optional
+from __future__ import annotations
+from typing import Callable, Dict, List, Optional, TYPE_CHECKING
 
 from core.classes import GameMessage
 from config import MODEL, client
 import config
 from ollama import ChatResponse
 from rich import print
-from core.location import Location
+
+if TYPE_CHECKING:
+    from core.location import Location
 
 
 class CharacterBase:
@@ -113,18 +116,19 @@ class Character(CharacterBase):
                 if is_return:
                     return is_return
             else:
-                print("[red] No tool call")
-                extras: List[str] = []
-                if "<send>" in self.messages[-1]["content"]:
-                    extras.append(
-                        "You are trying to use xml text instead of the send tool"
-                    )
-                self.messages.append(
-                    {
-                        "role": "user",
-                        "content": f"# SYSTEM:\nYou forgot about the tool call. If you want to send your answer - use the send tool\n{'\n -'.join(extras)}",
-                    }
-                )
+                # print("[red] No tool call")
+                # extras: List[str] = []
+                # if "<send>" in self.messages[-1]["content"]:
+                #     extras.append(
+                #         "You are trying to use xml text instead of the send tool"
+                #     )
+                # self.messages.append(
+                #     {
+                #         "role": "user",
+                #         "content": f"# SYSTEM:\nYou forgot about the tool call. If you want to send your answer - use the send tool\n{'\n -'.join(extras)}",
+                #     }
+                # )
+                return str(resp.message.content)
 
 
 class Player(CharacterBase):
