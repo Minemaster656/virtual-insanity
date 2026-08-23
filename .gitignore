@@ -10,3 +10,4 @@ wheels/
 .venv
 local/
 Session.vim
+nohup.out
