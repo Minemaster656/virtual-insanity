@@ -9,6 +9,7 @@ dependencies = [
     "networkx>=3.6.1",
     "numpy>=2.5.2",
     "ollama>=0.6.2",
+    "platformdirs>=4.11.3",
     "pydantic>=2.13.4",
     "rich>=15.0.0",
     "scikit-learn>=1.9.0",

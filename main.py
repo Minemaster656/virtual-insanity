@@ -48,7 +48,11 @@ async def main():
 
     """
     queue: List[CharacterBase] = [
-        Player("Player", "Player", "Player"),
+        Player(
+            "Scientist",
+            "Scientist in a white lab coat and protective glasses, holding a notepad and pen",
+            "Player",
+        ),
         Character(
             "Tom",
             "Generic character",
